@@ -106,8 +106,7 @@ python eval_tta_single.py \
 ```bibtex
 @inproceedings{your_sp_tta_year,
   title     = {SP-TTA: Shape-Preserving Test-Time Augmentation for Domain Generalization},
-  author    = {Your Name and ...},
-  booktitle = {...},
+  author    = {Zhicheng Lin, Xiaolin Wu, Xi Zhang},
   year      = {2025}
 }
 ```
