@@ -25,19 +25,6 @@ English summary: SP‑TTA builds several **shape‑preserving** TTA views (elast
 
 ---
 
-## 📁 目录结构 | Repo Layout
-
-```
-.
-├── tps.py                  # TTA 视图与融合策略实现（elastic/grid/flip + 多种融合）
-├── eval_tta_single.py      # 单模型评测示例（加载权重 + 视图构造 + 指标统计）
-├── tta.sh                  # 示例运行脚本（按需改数据/模型路径/显卡ID等）
-└── readme.md               # 原 DeepDG 仓库说明（如有）
-```
-
-
----
-
 ## 🔧 环境 | Installation
 
 本项目基于 PyTorch。若你来自 DeepDG 生态，直接沿用其 Python/依赖版本即可。
