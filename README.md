@@ -99,7 +99,7 @@ so you can quickly assess CI‑TTA’s benefit.
 If this repository or the implementation of CI‑TTA helps your research or product, please consider citing:
 
 ```bibtex
-@inproceedings{your_sp_tta_year,
+@inproceedings{CI-TTA,
   title     = {Class-Invariant Test-Time Augmentation for Domain Generalization},
   author    = {Zhicheng Lin and Xiaolin Wu and Xi Zhang},
   year      = {2025}
