@@ -42,7 +42,7 @@ pip install numpy pillow opencv-python matplotlib pandas
 
 ### 2) Option A: One‑click script (recommended—edit `tta.sh` to set paths/GPU first)
 ```bash
-bash tta.sh
+bash scripts/tta.sh
 ```
 
 ### 3) Option B: Run the Python script directly
