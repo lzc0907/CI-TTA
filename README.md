@@ -1,55 +1,51 @@
-# CI-TTA: CLASS-INVARIANT TEST-TIME AUGMENTATION FOR DOMAIN GENERALIZATION
+# CI‑TTA: Class‑Invariant Test‑Time Augmentation for Domain Generalization
 
-> **TL;DR**：在推理阶段对测试样本做**形状保持**的弹性/网格微形变，并用**置信度过滤 + 软投票**融合；若过滤后“无票”，自动**回退到原图预测**。核心实现见 `tps.py`，评测脚本 `eval_tta_single.py`，一键脚本 `tta.sh`。
-
-
----
-
-## ✨ 特性 | Features
-
-- **形状保持的 TTA 视图**
-  - 弹性形变 `elastic_deform`、网格扭曲 `grid_distortion`
-  - `build_tta_views(x, ...)` 支持批量构造，始终**保留原图**作为 `views[0]`
-
-- **多策略融合**
-  - **Soft 平均**：`tta_predict_softmax`（等权平均概率）
-  - **CI‑TTA（推荐）**：`tta_predict_conf`（置信度过滤 + 软投票；若过滤后为空集则**回退原图预测**）
- 
-
-- **即插即用评测**
-  - `eval_tta_single.py`：加载已训模型 → 构造 TTA 视图 → 统计原图 / Soft 平均 / SP‑TTA 三者准确率
-  - `tta.sh`：典型参数与命令行范式示例
-
+> **TL;DR**: At inference, build **shape‑preserving** elastic/grid deformations of each test sample and fuse predictions with **confidence filtering + soft voting**. If all augmented views are filtered out, **fall back to the original image’s prediction**. Core code in `tps.py`; evaluation via `eval_tta_single.py`; one‑click script in `tta.sh`.
 
 ---
 
-## 🔧 环境 | Installation
+## ✨ Features
 
-本项目基于 PyTorch。若你来自 DeepDG 生态，直接沿用其 Python/依赖版本即可。
+- **Shape‑preserving TTA views**
+  - Elastic deformation `elastic_deform`, grid distortion `grid_distortion`
+  - `build_tta_views(x, …)` constructs views in batch and always **keeps the original** as `views[0]`
+
+- **Flexible fusion strategies**
+  - **Soft average**: `tta_predict_softmax` (uniform averaging over class probabilities)
+  - **CI‑TTA (recommended)**: `tta_predict_conf` (confidence filtering + soft voting; if the post‑filter set is empty, **falls back to the original prediction**)
+
+- **Plug‑and‑play evaluation**
+  - `eval_tta_single.py`: load a trained model → build TTA views → report accuracy for *Origin* / *Soft* / *Origin‑CI‑TTA*
+  - `tta.sh`: ready‑to‑edit example with typical arguments and command‑line usage
+
+---
+
+## 🔧 Installation
+
+This repo is based on PyTorch. If you already use the DeepDG ecosystem, you can reuse the same Python environment and dependencies.
 
 ```bash
-# 最小示例（请按需选择对应版本）
+# Minimal example (choose versions as appropriate)
 pip install torch torchvision
 pip install numpy pillow opencv-python matplotlib pandas
 ```
 
-
 ---
 
-## 🚀 快速开始 | Quickstart
+## 🚀 Quickstart
 
-### 1) 准备数据与模型
-- 数据目录：建议使用 Office‑Home / PACS 等，目录组织与 DeepDG 一致
-- 模型：使用你已训练好的模型权重（例如 ERM‑ResNet‑50）
+### 1) Prepare data and a trained model
+- **Datasets**: Office‑Home / PACS, organized as in DeepDG
+- **Model**: any model you have trained (e.g., ERM‑ResNet‑50)
 
-> `eval_tta_single.py` 复用 `train.py` 的参数解析（`get_args()`）。如需查看所有 CLI 选项，请参考你项目中的 `train.py --help`。
+> `eval_tta_single.py` shares CLI parsing with your `train.py` (`get_args()`). To see all CLI options, check `train.py --help` in your project.
 
-### 2) 方式 A：一键脚本（推荐先打开 `tta.sh` 修改路径/显卡等）
+### 2) Option A: One‑click script (recommended—edit `tta.sh` to set paths/GPU first)
 ```bash
 bash tta.sh
 ```
 
-### 3) 方式 B：直接运行 Python 脚本
+### 3) Option B: Run the Python script directly
 ```bash
 python eval_tta_single.py \
   --data_dir <YOUR_DATA_DIR> \
@@ -62,55 +58,56 @@ python eval_tta_single.py \
   --gpu_id 0
 ```
 
-脚本将打印：
-- **Origin**（只用原图）
-- **Soft**（TTA 视图等权平均）
-- **Origin‑CI‑TTA**（原图 + 置信度过滤 + 回退）
-三者的准确率对比，便于快速评估 CI‑TTA 的收益。
-
-
----
-
-
-## ⚙️ 超参建议 | Hyperparameters
-
-- **弹性形变**：`alpha_std` 控幅度，`sigma` 控平滑（形变连续）。常用：`alpha_std=0.005~0.02`
-- **网格扭曲**：`grid_rows/cols` 控网格密度，`distort_std` 控扭曲幅度；建议幅度**小**以不破坏语义形状
-- **过滤阈值**：`conf_thres` 常在 `0.6~0.8`；阈值越高，保守性提升，**空集回退**更常出现
-
+The script prints a side‑by‑side comparison:
+- **Origin** (no TTA)
+- **Soft** (uniform average over TTA views)
+- **Origin‑CI‑TTA** (original + confidence filtering with fallback)
+so you can quickly assess CI‑TTA’s benefit.
 
 ---
 
-## 📊 复现实验 | Repro Tips
+## ⚙️ Hyperparameters
 
-- `tta.sh` 展示了数据集（Office‑Home / PACS）、骨干网络（ResNet‑18/50）、算法（ERM/DANN/MMD/VREx 等）的典型参数组合
-- 若你沿用 DeepDG 的训练脚本，可直接在其输出目录中选取 `best_model.pkl` 等权重放入评测脚本
-
-
----
-
-## 🧩 常见问题 | FAQ
-
-- **如何只改推理，不动训练？**  
-  CI‑TTA 只影响**推理阶段**。你可以直接加载已有权重，构造 TTA 视图并融合，无需重新训练。
-
+- **Elastic deformation**: `alpha_std` (magnitude) and `sigma` (smoothness). Typical range: `alpha_std = 0.005–0.02`.
+- **Grid distortion**: `grid_rows/cols` (grid density) and `distort_std` (magnitude). Prefer **small** distortions to preserve semantic shape.
+- **Confidence threshold**: `conf_thres` typically `0.6–0.8`. Higher thresholds are more conservative, so **empty‑set fallback** occurs more often.
 
 ---
 
-## 📚 引用 | Citation
+## 📊 Reproduction Tips
 
-如果本仓库或 CI‑TTA 的实现对你的研究或产品有帮助，请引用本文工作（示例）：
+- `tta.sh` includes typical combinations for datasets (Office‑Home / PACS), backbones (ResNet‑18/50), and algorithms (ERM / DANN / MMD / VREx, etc.).
+- If you reuse DeepDG training scripts, you can take the resulting weights (e.g., `best_model.pkl`) and point the evaluation script to them.
+
+---
+
+## 🧩 FAQ
+
+- **Can I change inference without touching training?**  
+  Yes. CI‑TTA only affects the **inference stage**. Load your trained weights, build TTA views, and fuse—no retraining required.
+
+- **What if confidence filtering discards all views?**  
+  CI‑TTA **falls back to the original image’s prediction** by design.
+
+- **Where is the core implementation?**  
+  Deformations and TTA utilities live in `tps.py`; end‑to‑end evaluation is in `eval_tta_single.py`; `tta.sh` shows common usage.
+
+---
+
+## 📚 Citation
+
+If this repository or the implementation of CI‑TTA helps your research or product, please consider citing:
 
 ```bibtex
 @inproceedings{your_sp_tta_year,
-  title     = {CLASS-INVARIANT TEST-TIME AUGMENTATION FOR DOMAIN GENERALIZATION},
-  author    = {Zhicheng Lin, Xiaolin Wu, Xi Zhang},
+  title     = {Class-Invariant Test-Time Augmentation for Domain Generalization},
+  author    = {Zhicheng Lin and Xiaolin Wu and Xi Zhang},
   year      = {2025}
 }
 ```
 
 ---
 
-## 🤝 致谢 | Acknowledgements
+## 🤝 Acknowledgements
 
-- 方法思路与实现参考了常见 DG 设定；仓库结构可与 DeepDG 工具链配合使用。
+- The methodology follows common DG settings and is designed to work smoothly with the DeepDG toolchain and project structure.
