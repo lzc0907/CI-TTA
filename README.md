@@ -1,8 +1,6 @@
-# SP-TTA: Shape‑Preserving Test‑Time Augmentation (for Domain Generalization)
+# CI-TTA: CLASS-INVARIANT TEST-TIME AUGMENTATION FOR DOMAIN GENERALIZATION
 
 > **TL;DR**：在推理阶段对测试样本做**形状保持**的弹性/网格微形变，并用**置信度过滤 + 软投票**融合；若过滤后“无票”，自动**回退到原图预测**。核心实现见 `tps.py`，评测脚本 `eval_tta_single.py`，一键脚本 `tta.sh`。
-
-English summary: SP‑TTA builds several **shape‑preserving** TTA views (elastic and grid distortions + optional flip), then fuses predictions with **confidence filtering + soft voting**. If all views are filtered out, the final decision **falls back to the original image’s prediction**.
 
 
 ---
@@ -15,7 +13,7 @@ English summary: SP‑TTA builds several **shape‑preserving** TTA views (elast
 
 - **多策略融合**
   - **Soft 平均**：`tta_predict_softmax`（等权平均概率）
-  - **SP‑TTA（推荐）**：`tta_predict_conf`（置信度过滤 + 软投票；若过滤后为空集则**回退原图预测**）
+  - **CI‑TTA（推荐）**：`tta_predict_conf`（置信度过滤 + 软投票；若过滤后为空集则**回退原图预测**）
  
 
 - **即插即用评测**
@@ -67,8 +65,8 @@ python eval_tta_single.py \
 脚本将打印：
 - **Origin**（只用原图）
 - **Soft**（TTA 视图等权平均）
-- **Origin‑SP‑TTA**（原图 + 置信度过滤 + 回退）
-三者的准确率对比，便于快速评估 SP‑TTA 的收益。
+- **Origin‑CI‑TTA**（原图 + 置信度过滤 + 回退）
+三者的准确率对比，便于快速评估 CI‑TTA 的收益。
 
 
 ---
@@ -94,18 +92,18 @@ python eval_tta_single.py \
 ## 🧩 常见问题 | FAQ
 
 - **如何只改推理，不动训练？**  
-  SP‑TTA 只影响**推理阶段**。你可以直接加载已有权重，构造 TTA 视图并融合，无需重新训练。
+  CI‑TTA 只影响**推理阶段**。你可以直接加载已有权重，构造 TTA 视图并融合，无需重新训练。
 
 
 ---
 
 ## 📚 引用 | Citation
 
-如果本仓库或 SP‑TTA 的实现对你的研究或产品有帮助，请引用本文工作（示例）：
+如果本仓库或 CI‑TTA 的实现对你的研究或产品有帮助，请引用本文工作（示例）：
 
 ```bibtex
 @inproceedings{your_sp_tta_year,
-  title     = {SP-TTA: Shape-Preserving Test-Time Augmentation for Domain Generalization},
+  title     = {CLASS-INVARIANT TEST-TIME AUGMENTATION FOR DOMAIN GENERALIZATION},
   author    = {Zhicheng Lin, Xiaolin Wu, Xi Zhang},
   year      = {2025}
 }
