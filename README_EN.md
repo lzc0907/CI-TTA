@@ -102,7 +102,7 @@ python eval_tta_single.py \
 如果本仓库或 CI‑TTA 的实现对你的研究或产品有帮助，请引用本文工作（示例）：
 
 ```bibtex
-@inproceedings{your_sp_tta_year,
+@inproceedings{CI-TTA,
   title     = {CLASS-INVARIANT TEST-TIME AUGMENTATION FOR DOMAIN GENERALIZATION},
   author    = {Zhicheng Lin, Xiaolin Wu, Xi Zhang},
   year      = {2025}
